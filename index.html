@@ -1,0 +1,209 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Bean</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%AB%98%3C/text%3E%3C/svg%3E">
+<style>
+:root {
+  --face: #c0c0c0;
+  --hi: #ffffff;
+  --mid: #808080;
+  --dark: #000000;
+  --blue: #000080;
+  --blue2: #1084d0;
+  --desk: #008080;
+}
+* { box-sizing: border-box; }
+html, body { margin: 0; height: 100%; overflow: hidden; }
+body {
+  background: var(--desk);
+  font-family: Tahoma, "MS Sans Serif", "Segoe UI", Geneva, Arial, sans-serif;
+  font-size: 13px;
+  color: #000;
+  user-select: none;
+}
+.raised { background: var(--face); border: 2px solid; border-color: var(--hi) var(--dark) var(--dark) var(--hi); box-shadow: inset -1px -1px var(--mid), inset 1px 1px #dfdfdf; }
+.sunken { background: #fff; border: 2px solid; border-color: var(--mid) var(--hi) var(--hi) var(--mid); box-shadow: inset 1px 1px var(--dark); }
+button { font: inherit; color: inherit; cursor: pointer; }
+button:active, button.down { border-color: var(--dark) var(--hi) var(--hi) var(--dark); box-shadow: inset 1px 1px var(--mid); }
+button:focus-visible { outline: 1px dotted #000; outline-offset: -5px; }
+
+/* desktop */
+#desktop { position: absolute; inset: 0 0 34px 0; padding: 12px; }
+.dicon { display: flex; flex-direction: column; align-items: center; width: 84px; padding: 4px; margin-bottom: 14px; background: none; border: 0; text-align: center; color: #fff; }
+.dicon .ico { font-size: 32px; line-height: 1.1; }
+.dicon span.t { padding: 1px 3px; word-break: break-word; }
+.dicon:focus-visible span.t, .dicon.sel span.t { background: var(--blue); outline: 1px dotted #ff0; }
+
+/* window */
+#win { position: absolute; left: 130px; top: 36px; width: min(640px, calc(100vw - 150px)); height: min(440px, calc(100vh - 90px)); display: flex; flex-direction: column; padding: 2px; }
+.title { display: flex; align-items: center; gap: 4px; padding: 3px 3px 3px 5px; background: linear-gradient(90deg, var(--blue), var(--blue2)); color: #fff; font-weight: bold; cursor: move; touch-action: none; }
+.title .name { flex: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.title button { width: 18px; height: 16px; padding: 0; line-height: 1; font-size: 11px; font-weight: bold; }
+.menubar { display: flex; gap: 2px; padding: 2px 0; }
+.menubar span { padding: 2px 8px; }
+.addr { display: flex; align-items: center; gap: 6px; padding: 3px 2px 5px; }
+#up { padding: 1px 10px; }
+#up:disabled { color: var(--mid); text-shadow: 1px 1px var(--hi); cursor: default; }
+.addr .box { flex: 1; padding: 2px 4px; }
+#files { flex: 1; overflow: auto; padding: 10px; display: flex; flex-wrap: wrap; align-content: flex-start; gap: 8px; }
+#files .dicon { color: #000; margin: 0; }
+#files .dicon.sel span.t { color: #fff; }
+.status { display: flex; gap: 3px; padding-top: 3px; }
+.status div { padding: 2px 6px; border: 1px solid; border-color: var(--mid) var(--hi) var(--hi) var(--mid); }
+.status div:first-child { flex: 1; }
+
+/* taskbar */
+#bar { position: absolute; left: 0; right: 0; bottom: 0; height: 34px; display: flex; align-items: center; gap: 4px; padding: 3px; border: 0; border-top: 2px solid var(--hi); box-shadow: none; }
+#start { display: flex; align-items: center; gap: 5px; height: 26px; padding: 0 8px; font-weight: bold; }
+#task { height: 26px; min-width: 150px; max-width: 200px; padding: 0 8px; text-align: left; font-weight: bold; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+#clock { margin-left: auto; padding: 4px 10px; border: 1px solid; border-color: var(--mid) var(--hi) var(--hi) var(--mid); }
+
+/* start menu */
+#menu { position: absolute; left: 3px; bottom: 34px; width: 220px; display: none; padding: 2px; }
+#menu.open { display: flex; }
+#menu .side { width: 24px; background: linear-gradient(0deg, var(--blue), var(--blue2)); position: relative; }
+#menu .side b { position: absolute; left: 3px; bottom: 6px; writing-mode: vertical-rl; transform: rotate(180deg); color: #fff; font-size: 18px; letter-spacing: 1px; }
+#menu .items { flex: 1; display: flex; flex-direction: column; }
+#menu button { display: flex; align-items: center; gap: 10px; padding: 7px 8px; background: none; border: 0; text-align: left; box-shadow: none; }
+#menu button:hover, #menu button:focus-visible { background: var(--blue); color: #fff; outline: none; }
+#menu hr { margin: 2px 0; border: 0; border-top: 1px solid var(--mid); border-bottom: 1px solid var(--hi); }
+
+@media (max-width: 560px) { #win { left: 6px; top: 6px; width: calc(100vw - 12px); height: calc(100vh - 52px); } #desktop .dicon { display: none; } }
+</style>
+</head>
+<body>
+<div id="desktop">
+  <button class="dicon" id="d-bean"><span class="ico">🫘</span><span class="t">Bean</span></button>
+</div>
+
+<section id="win" class="raised" aria-label="Bean">
+  <div class="title" id="drag">
+    <span>🫘</span><span class="name" id="wtitle">Bean</span>
+    <button class="raised" id="min" aria-label="Minimize">_</button>
+    <button class="raised" id="close" aria-label="Close">X</button>
+  </div>
+  <div class="menubar"><span>File</span><span>Edit</span><span>View</span><span>Help</span></div>
+  <div class="addr"><button class="raised" id="up">Up</button><span>Address</span><div class="box sunken" id="path">C:\Bean</div></div>
+  <div id="files" class="sunken"></div>
+  <div class="status"><div id="count"></div><div>My Computer</div></div>
+</section>
+
+<div id="menu" class="raised">
+  <div class="side"><b>Bean 98</b></div>
+  <div class="items" id="items">
+    <hr>
+    <button id="shut"><span>⏻</span> Shut Down...</button>
+  </div>
+</div>
+
+<div id="bar" class="raised">
+  <button id="start" class="raised"><span>🫘</span> Start</button>
+  <button id="task" class="raised down">🫘 Bean</button>
+  <div id="clock"></div>
+</div>
+
+<script>
+// ADD NEW GAMES HERE: paste the full link, one per line, inside the quotes.
+// The name shown on the icon is pulled from the end of the link automatically.
+const GAMES = [
+  "https://arcfc32-cell.github.io/GunkeVR/",
+];
+
+const $ = id => document.getElementById(id);
+function nameFromUrl(url) {
+  const u = new URL(url);
+  const parts = u.pathname.split("/").filter(Boolean);
+  return parts.length ? decodeURIComponent(parts[parts.length - 1]) : u.hostname.split(".")[0];
+}
+
+// file browser: C:\\Bean (root) -> C:\\Bean\\VR Games
+const files = $("files"), items = $("items");
+const touch = matchMedia("(pointer: coarse)").matches;
+function launch(url) {
+  const w = window.open(url, "_blank", "noopener");
+  if (!w) window.location.assign(url);
+}
+
+function item(icon, label, act) {
+  const b = document.createElement("button");
+  b.className = "dicon";
+  b.innerHTML = '<span class="ico"></span><span class="t"></span>';
+  b.querySelector(".ico").textContent = icon;
+  b.querySelector(".t").textContent = label;
+  b.onclick = () => {
+    if (touch) return act();
+    files.querySelectorAll(".sel").forEach(x => x.classList.remove("sel"));
+    b.classList.add("sel");
+  };
+  b.ondblclick = act;
+  b.onkeydown = e => { if (e.key === "Enter") { e.preventDefault(); act(); } };
+  files.appendChild(b);
+}
+
+function go(where) {
+  files.innerHTML = "";
+  const root = where === "root";
+  $("up").disabled = root;
+  $("path").textContent = root ? "C:\\Bean" : "C:\\Bean\\VR Games";
+  $("wtitle").textContent = root ? "Bean" : "VR Games";
+  if (root) {
+    item("📁", "VR Games", () => go("games"));
+    $("count").textContent = "1 object(s)";
+  } else {
+    GAMES.forEach(url => item("🥽", nameFromUrl(url), () => launch(url)));
+    $("count").textContent = GAMES.length + " object(s)";
+  }
+}
+$("up").onclick = () => go("root");
+GAMES.forEach(url => {
+  const m = document.createElement("button");
+  m.innerHTML = "<span>🥽</span>";
+  m.append(nameFromUrl(url));
+  m.onclick = () => launch(url);
+  items.insertBefore(m, items.firstChild);
+});
+go("root");
+
+// window controls
+const win = $("win"), task = $("task");
+function show(v) { win.style.display = v ? "flex" : "none"; task.classList.toggle("down", v); }
+$("min").onclick = () => show(false);
+$("close").onclick = () => { show(false); task.style.display = "none"; };
+task.onclick = () => show(win.style.display === "none");
+$("d-bean").onclick = () => { task.style.display = ""; show(true); go("root"); };
+
+// start menu
+const menu = $("menu"), start = $("start");
+start.onclick = e => { e.stopPropagation(); menu.classList.toggle("open"); start.classList.toggle("down"); };
+document.addEventListener("click", () => { menu.classList.remove("open"); start.classList.remove("down"); });
+$("shut").onclick = () => {
+  window.close();
+  // browsers only allow close() on tabs a script opened; otherwise blank the tab
+  setTimeout(() => window.location.replace("about:blank"), 100);
+};
+
+// drag window by title bar
+let ox, oy, dragging = false;
+$("drag").addEventListener("pointerdown", e => {
+  if (e.target.closest("button")) return;
+  dragging = true; ox = e.clientX - win.offsetLeft; oy = e.clientY - win.offsetTop;
+  $("drag").setPointerCapture(e.pointerId);
+});
+$("drag").addEventListener("pointermove", e => {
+  if (!dragging) return;
+  win.style.left = Math.max(0, e.clientX - ox) + "px";
+  win.style.top = Math.max(0, Math.min(e.clientY - oy, innerHeight - 70)) + "px";
+});
+$("drag").addEventListener("pointerup", () => dragging = false);
+
+// clock
+function tick() {
+  $("clock").textContent = new Date().toLocaleTimeString([], { hour: "numeric", minute: "2-digit" });
+}
+tick(); setInterval(tick, 10000);
+</script>
+</body>
+</html>
